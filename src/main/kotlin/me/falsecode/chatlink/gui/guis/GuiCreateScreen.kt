@@ -4,13 +4,16 @@ import me.falsecode.chatlink.Main
 import me.falsecode.chatlink.gui.Gui
 import me.falsecode.chatlink.gui.IButton
 import me.falsecode.chatlink.utils.ItemBuilder
+import me.falsecode.chatlink.utils.MessageUtils
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
 
-class GuiCreateScreen(plugin: Main, player: Player) : Gui(plugin, player, 45, "Chat Link") {
+class GuiCreateScreen(plugin: Main, player: Player, isEdit: Boolean) : Gui(plugin, player, 45, "Chat Link") {
+    private val isEdit: Boolean
     init {
+        this.isEdit = isEdit
         init()
         openInventory()
     }
@@ -46,70 +49,105 @@ class GuiCreateScreen(plugin: Main, player: Player) : Gui(plugin, player, 45, "C
         setButton(9, ItemBuilder(Material.REDSTONE)
             .setName("&fSet Identifier")
             .setLore(listOf("", "&7Current:", "&f${identifier ?: "None"}"))
-            .build(), object: IButton{
-            override fun execute(event: InventoryClickEvent) {
-                player.sendMessage(plugin.msgUtils.getOrSetDefault("gui.create.identifierButton.click", "&eType the identifier in chat."))
-                currentAction = Action.IDENTIFIER
-                player.closeInventory()
-            }
-        })
+            .build()
+        ) {
+            player.sendMessage(
+                plugin.msgUtils.getOrSetDefault(
+                    "gui.create.identifierButton.click",
+                    "&eType the identifier in chat."
+                )
+            )
+            currentAction = Action.IDENTIFIER
+            player.closeInventory()
+        }
         setButton(11, ItemBuilder(Material.NAME_TAG)
             .setName("&fSet Name")
             .setLore(listOf("", "&7Current:", "&f${commandName ?: "None"}"))
-            .build(), object: IButton{
-            override fun execute(event: InventoryClickEvent) {
-                player.sendMessage(plugin.msgUtils.getOrSetDefault("gui.create.nameButton.click", "&eType the name in chat."))
-                currentAction = Action.NAME
-                player.closeInventory()
-            }
-        })
+            .build()
+        ) {
+            player.sendMessage(
+                plugin.msgUtils.getOrSetDefault(
+                    "gui.create.nameButton.click",
+                    "&eType the name in chat."
+                )
+            )
+            currentAction = Action.NAME
+            player.closeInventory()
+        }
         setButton(13, ItemBuilder(Material.OAK_SIGN)
             .setName("&fSet Message")
             .setLore(listOf("", "&7Current:", "&f${message?.split("\\n") ?: "None"}"))
-            .build(), object: IButton{
-            override fun execute(event: InventoryClickEvent) {
-                player.sendMessage(plugin.msgUtils.getOrSetDefault("gui.create.messageButton.click", "&eType the message you want in chat."))
-                currentAction = Action.MESSAGE
-                player.closeInventory()
-            }
-        })
+            .build()
+        ) {
+            player.sendMessage(
+                plugin.msgUtils.getOrSetDefault(
+                    "gui.create.messageButton.click",
+                    "&eType the message you want in chat."
+                )
+            )
+            currentAction = Action.MESSAGE
+            player.closeInventory()
+        }
         setButton(15, ItemBuilder(Material.CHAIN)
             .setName("&fSet Link")
             .setLore(listOf("", "&7Current:", "&f${link ?: "None"}"))
-            .build(), object: IButton{
-            override fun execute(event: InventoryClickEvent) {
-                player.sendMessage(plugin.msgUtils.getOrSetDefault("gui.create.linkButton.click", "&eType the link in chat."))
-                currentAction = Action.LINK
-                player.closeInventory()
-            }
-        })
+            .build()
+        ) {
+            player.sendMessage(
+                plugin.msgUtils.getOrSetDefault(
+                    "gui.create.linkButton.click",
+                    "&eType the link in chat."
+                )
+            )
+            currentAction = Action.LINK
+            player.closeInventory()
+        }
         setButton(17, ItemBuilder(Material.END_ROD)
             .setName("&fSet Hover Text")
             .setLore(listOf("", "&7Current:", "&f${message?.split("\\n") ?: "None"}"))
-            .build(), object: IButton{
-            override fun execute(event: InventoryClickEvent) {
-                player.sendMessage(plugin.msgUtils.getOrSetDefault("gui.create.hoverButton.click", "&eType the message you want in chat."))
-                currentAction = Action.HOVER
-                player.closeInventory()
-            }
-        })
+            .build()
+        ) {
+            player.sendMessage(
+                plugin.msgUtils.getOrSetDefault(
+                    "gui.create.hoverButton.click",
+                    "&eType the message you want in chat."
+                )
+            )
+            currentAction = Action.HOVER
+            player.closeInventory()
+        }
 
-        setButton(31, ItemBuilder(Material.EMERALD_BLOCK)
+        if(isEdit)
+            setButton(30, ItemBuilder(Material.REDSTONE_BLOCK)
+                .setName("&cRemove")
+                .setLore(listOf(""))
+                .build()
+            ) {
+                if (identifier != null) {
+                    player.sendMessage(MessageUtils.applyColor("&cCommand '$identifier' has been removed."))
+                    plugin.commandManager.removeCommand(identifier!!)
+                }
+            }
+
+        setButton(if(isEdit) 32 else 31, ItemBuilder(Material.EMERALD_BLOCK)
             .setName("&fCreate")
             .setLore(listOf("", "&7Creates the command"))
-            .build(), object: IButton{
-            override fun execute(event: InventoryClickEvent) {
+            .build())
+            {
                 if(identifier == null || commandName == null || message == null || link == null || hover == null) {
                     player.sendMessage(plugin.msgUtils.getOrSetDefault("gui.create.submit.nulls", "&cSome of the values are not set!"))
-                    return
+                } else {
+                    plugin.commandManager.addCommand(identifier!!, commandName!!, message!!, link!!, hover!!)
+                    plugin.commandManager.registerCommand(identifier!!)
+                    player.sendMessage(
+                        plugin.msgUtils.getOrSetDefault(
+                            "gui.create.submit.success",
+                            "&eSuccessfully made Command"
+                        )
+                    )
+                    player.closeInventory()
                 }
-
-                plugin.commandManager.addCommand(identifier!!, commandName!!, message!!, link!!, hover!!)
-                plugin.commandManager.registerCommand(identifier!!)
-                player.sendMessage(plugin.msgUtils.getOrSetDefault("gui.create.submit.success", "&eSuccessfully made Command"))
-                player.closeInventory()
             }
-        })
         update()
     }
 

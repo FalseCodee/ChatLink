@@ -31,6 +31,10 @@ class LinkCommand(plugin: Main, identifier: String, name: String, message: Strin
         this.hover = hover.replace("\\n", "\n")
     }
     override fun execute(sender: CommandSender, args: Array<out String>) {
+        if(plugin.commandManager.isIdentifierAvailable(identifier)) {
+            sender.sendMessage(plugin.msgUtils.getOrSetDefault("command.noLongerExists", "This command no longer exists."))
+            return
+        }
         if(sender is Player) {
             sender.spigot().sendMessage(textComponent)
         }
