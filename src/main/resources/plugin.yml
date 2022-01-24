@@ -1,0 +1,6 @@
+name: ChatLink
+version: '${project.version}'
+main: me.falsecode.chatlink.Main
+api-version: 1.18
+authors: [ FalseCode ]
+description: Allows you to make commands that display clickable text in chat
