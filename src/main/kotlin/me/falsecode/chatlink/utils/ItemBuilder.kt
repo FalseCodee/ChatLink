@@ -69,7 +69,7 @@ class ItemBuilder {
 
     fun addEnchant(enchantment: Enchantment, level:Int): ItemBuilder {
         this.itemStack.addUnsafeEnchantment(enchantment, level)
-        return this;
+        return this
     }
 
     fun shouldHideFlags(hide: Boolean, vararg flags: ItemFlag = ItemFlag.values()): ItemBuilder {

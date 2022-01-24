@@ -7,10 +7,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryCloseEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
-import org.bukkit.plugin.java.JavaPlugin
-import org.bukkit.scheduler.BukkitRunnable
 import java.util.*
-import kotlin.collections.HashMap
 
 abstract class Gui(plugin: Main, player:Player, size:Int, title:String) : IGui {
     val player:Player

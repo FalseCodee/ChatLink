@@ -3,7 +3,6 @@ package me.falsecode.chatlink.listeners
 import me.falsecode.chatlink.Main
 import me.falsecode.chatlink.gui.GuiManager
 import me.falsecode.chatlink.gui.guis.GuiCreateScreen
-import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.AsyncPlayerChatEvent

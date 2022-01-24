@@ -1,3 +1,5 @@
+@file:Suppress("MemberVisibilityCanBePrivate", "MemberVisibilityCanBePrivate", "MemberVisibilityCanBePrivate")
+
 package me.falsecode.chatlink.command
 
 import me.falsecode.chatlink.Main
@@ -5,10 +7,6 @@ import org.bukkit.Bukkit
 import org.bukkit.command.Command
 import org.bukkit.command.CommandMap
 import org.bukkit.command.CommandSender
-import org.bukkit.plugin.java.JavaPlugin
-import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 abstract class FalseCommand(
     protected val plugin: Main,

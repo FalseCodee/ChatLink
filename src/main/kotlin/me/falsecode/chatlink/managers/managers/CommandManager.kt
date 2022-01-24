@@ -3,7 +3,6 @@ package me.falsecode.chatlink.managers.managers
 import me.falsecode.chatlink.Main
 import me.falsecode.chatlink.command.commands.LinkCommand
 import me.falsecode.chatlink.managers.Manager
-import org.bukkit.plugin.java.JavaPlugin
 
 class CommandManager(plugin: Main) : Manager(plugin, "commands") {
 
@@ -46,5 +45,9 @@ class CommandManager(plugin: Main) : Manager(plugin, "commands") {
 
     fun removeCommand(identifier: String) {
         getConfig().set(identifier, null)
+    }
+
+    fun getAllIdentifiers() : List<String> {
+        return getConfig().getConfigurationSection("")?.getKeys(false)?.toList() ?: ArrayList()
     }
 }

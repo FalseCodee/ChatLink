@@ -2,7 +2,6 @@ package me.falsecode.chatlink.gui.guis
 
 import me.falsecode.chatlink.Main
 import me.falsecode.chatlink.gui.Gui
-import me.falsecode.chatlink.gui.IButton
 import me.falsecode.chatlink.utils.ItemBuilder
 import me.falsecode.chatlink.utils.MessageUtils
 import org.bukkit.Material
@@ -19,13 +18,13 @@ class GuiCreateScreen(plugin: Main, player: Player, isEdit: Boolean) : Gui(plugi
     }
     private var identifier: String? = null
     set(value) {
-        if(plugin.commandManager.isIdentifierAvailable(value)) {
+        if(isEdit || plugin.commandManager.isIdentifierAvailable(value)) {
             field = value
         }
     }
     private var commandName: String? = null
         set(value) {
-            if(plugin.commandManager.isCommandNameAvailable(value)) {
+            if(isEdit || plugin.commandManager.isCommandNameAvailable(value)) {
                 field = value
             }
         }
@@ -33,7 +32,7 @@ class GuiCreateScreen(plugin: Main, player: Player, isEdit: Boolean) : Gui(plugi
     private var link: String? = null
     private var hover: String? = null
 
-    var currentAction: Action? = null
+    private var currentAction: Action? = null
 
     override fun init() {
         super.init()
@@ -46,35 +45,40 @@ class GuiCreateScreen(plugin: Main, player: Player, isEdit: Boolean) : Gui(plugi
                 .setName("&0")
                 .build()
         }
-        setButton(9, ItemBuilder(Material.REDSTONE)
-            .setName("&fSet Identifier")
-            .setLore(listOf("", "&7Current:", "&f${identifier ?: "None"}"))
-            .build()
-        ) {
-            player.sendMessage(
-                plugin.msgUtils.getOrSetDefault(
-                    "gui.create.identifierButton.click",
-                    "&eType the identifier in chat."
+        if(!isEdit) {
+            setButton(
+                9, ItemBuilder(Material.REDSTONE)
+                    .setName("&fSet Identifier")
+                    .setLore(listOf("", "&7Current:", "&f${identifier ?: "None"}"))
+                    .build()
+            ) {
+                player.sendMessage(
+                    plugin.msgUtils.getOrSetDefault(
+                        "gui.create.identifierButton.click",
+                        "&eType the identifier in chat."
+                    )
                 )
-            )
-            currentAction = Action.IDENTIFIER
-            player.closeInventory()
-        }
-        setButton(11, ItemBuilder(Material.NAME_TAG)
-            .setName("&fSet Name")
-            .setLore(listOf("", "&7Current:", "&f${commandName ?: "None"}"))
-            .build()
-        ) {
-            player.sendMessage(
-                plugin.msgUtils.getOrSetDefault(
-                    "gui.create.nameButton.click",
-                    "&eType the name in chat."
+                currentAction = Action.IDENTIFIER
+                player.closeInventory()
+            }
+            setButton(
+                11, ItemBuilder(Material.NAME_TAG)
+                    .setName("&fSet Name")
+                    .setLore(listOf("", "&7Current:", "&f${commandName ?: "None"}"))
+                    .build()
+            ) {
+                player.sendMessage(
+                    plugin.msgUtils.getOrSetDefault(
+                        "gui.create.nameButton.click",
+                        "&eType the name in chat."
+                    )
                 )
-            )
-            currentAction = Action.NAME
-            player.closeInventory()
+                currentAction = Action.NAME
+                player.closeInventory()
+            }
         }
-        setButton(13, ItemBuilder(Material.OAK_SIGN)
+
+        setButton(13 - if(isEdit) 2 else 0, ItemBuilder(Material.OAK_SIGN)
             .setName("&fSet Message")
             .setLore(listOf("", "&7Current:", "&f${message?.split("\\n") ?: "None"}"))
             .build()
@@ -88,7 +92,7 @@ class GuiCreateScreen(plugin: Main, player: Player, isEdit: Boolean) : Gui(plugi
             currentAction = Action.MESSAGE
             player.closeInventory()
         }
-        setButton(15, ItemBuilder(Material.CHAIN)
+        setButton(15 - if(isEdit) 2 else 0, ItemBuilder(Material.CHAIN)
             .setName("&fSet Link")
             .setLore(listOf("", "&7Current:", "&f${link ?: "None"}"))
             .build()
@@ -102,9 +106,9 @@ class GuiCreateScreen(plugin: Main, player: Player, isEdit: Boolean) : Gui(plugi
             currentAction = Action.LINK
             player.closeInventory()
         }
-        setButton(17, ItemBuilder(Material.END_ROD)
+        setButton(17 - if(isEdit) 2 else 0, ItemBuilder(Material.END_ROD)
             .setName("&fSet Hover Text")
-            .setLore(listOf("", "&7Current:", "&f${message?.split("\\n") ?: "None"}"))
+            .setLore(listOf("", "&7Current:", "&f${hover?.split("\\n") ?: "None"}"))
             .build()
         ) {
             player.sendMessage(
@@ -126,6 +130,7 @@ class GuiCreateScreen(plugin: Main, player: Player, isEdit: Boolean) : Gui(plugi
                 if (identifier != null) {
                     player.sendMessage(MessageUtils.applyColor("&cCommand '$identifier' has been removed."))
                     plugin.commandManager.removeCommand(identifier!!)
+                    player.closeInventory()
                 }
             }
 
@@ -138,12 +143,13 @@ class GuiCreateScreen(plugin: Main, player: Player, isEdit: Boolean) : Gui(plugi
                     player.sendMessage(plugin.msgUtils.getOrSetDefault("gui.create.submit.nulls", "&cSome of the values are not set!"))
                 } else {
                     plugin.commandManager.addCommand(identifier!!, commandName!!, message!!, link!!, hover!!)
-                    plugin.commandManager.registerCommand(identifier!!)
+                    if(!isEdit) plugin.commandManager.registerCommand(identifier!!)
                     player.sendMessage(
                         plugin.msgUtils.getOrSetDefault(
                             "gui.create.submit.success",
-                            "&eSuccessfully made Command"
-                        )
+                            "&eSuccessfully Updated Command"
+                        ),
+                        "(Some effects only work after a restart.)"
                     )
                     player.closeInventory()
                 }
@@ -177,8 +183,17 @@ class GuiCreateScreen(plugin: Main, player: Player, isEdit: Boolean) : Gui(plugi
         if(currentAction == null) {
             super.onInventoryClose(event, gui)
         }
+    }
 
+    fun build(identifier: String): GuiCreateScreen {
+        this.identifier = identifier
+        this.commandName = plugin.commandManager.getConfig().getString("$identifier.name")
+        this.message = plugin.commandManager.getConfig().getString("$identifier.message")
+        this.link = plugin.commandManager.getConfig().getString("$identifier.link")
+        this.hover = plugin.commandManager.getConfig().getString("$identifier.hover")
 
+        setItems()
+        return this
     }
 
     enum class Action {

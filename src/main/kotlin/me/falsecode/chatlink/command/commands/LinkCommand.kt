@@ -9,19 +9,24 @@ import net.md_5.bungee.api.chat.TextComponent
 import net.md_5.bungee.api.chat.hover.content.Text
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
-import org.bukkit.plugin.java.JavaPlugin
 
 class LinkCommand(plugin: Main, identifier: String, name: String, message: String, link: String, hover: String = "") : FalseCommand(plugin, name, "Link Command", "/$name") {
     private val identifier: String
-    private val commandName: String
-    private val message: String
-    private val link: String
-    private val hover: String
-    private val textComponent: TextComponent = TextComponent(MessageUtils.applyColor(message))
+    private var commandName: String
+    private var message: String
+    private var link: String
+    private var hover: String
+    private val textComponent: TextComponent
         get() {
-            field.clickEvent = ClickEvent(ClickEvent.Action.OPEN_URL, link)
-            field.hoverEvent = HoverEvent(HoverEvent.Action.SHOW_TEXT, Text(MessageUtils.applyColor(hover)))
-            return field
+            this.commandName = plugin.commandManager.getConfig().getString("$identifier.name") ?: "None"
+            this.message = plugin.commandManager.getConfig().getString("$identifier.message")?.replace("\\n", "\n") ?: "None"
+            this.link = plugin.commandManager.getConfig().getString("$identifier.link") ?: "None"
+            this.hover = plugin.commandManager.getConfig().getString("$identifier.hover")?.replace("\\n", "\n") ?: "None"
+
+            val text = TextComponent(MessageUtils.applyColor(message))
+            text.clickEvent = ClickEvent(ClickEvent.Action.OPEN_URL, link)
+            text.hoverEvent = HoverEvent(HoverEvent.Action.SHOW_TEXT, Text(MessageUtils.applyColor(hover)))
+            return text
         }
     init {
         this.identifier = identifier

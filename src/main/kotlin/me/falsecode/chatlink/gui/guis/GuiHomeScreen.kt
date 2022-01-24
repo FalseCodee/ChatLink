@@ -2,7 +2,6 @@ package me.falsecode.chatlink.gui.guis
 
 import me.falsecode.chatlink.Main
 import me.falsecode.chatlink.gui.Gui
-import me.falsecode.chatlink.gui.IButton
 import me.falsecode.chatlink.utils.ItemBuilder
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -23,20 +22,19 @@ class GuiHomeScreen(plugin: Main, player: Player) : Gui(plugin, player, 27, "Cha
         setButton(11, ItemBuilder(Material.EMERALD_BLOCK)
             .setName(plugin.msgUtils.getOrSetDefault("gui.createButton.name","&fCreate new command."))
             .setLore(plugin.msgUtils.getOrSetDefault("gui.createButton.lore",listOf("", "&7Create and customize")))
-            .build(), object: IButton{
-            override fun execute(event: InventoryClickEvent) {
-                player.sendMessage(plugin.msgUtils.getOrSetDefault("gui.createButton.click", "&eGoing to creation page."))
-                switchScreen(GuiCreateScreen(plugin, player))
-            }
-        })
+            .build()
+        ) {
+            player.sendMessage(plugin.msgUtils.getOrSetDefault("gui.createButton.click", "&eGoing to creation page."))
+            switchScreen(GuiCreateScreen(plugin, player, false))
+        }
         setButton(15, ItemBuilder(Material.REDSTONE_LAMP)
             .setName(plugin.msgUtils.getOrSetDefault("gui.editButton.name","&fEdit"))
             .setLore(plugin.msgUtils.getOrSetDefault("gui.editButton.lore",listOf("", "&7Edit or remove commands")))
-            .build(), object: IButton{
-            override fun execute(event: InventoryClickEvent) {
-                player.sendMessage(plugin.msgUtils.getOrSetDefault("gui.editButton.click", "&eGoing to edit page."))
-            }
-        })
+            .build()
+        ) {
+            player.sendMessage(plugin.msgUtils.getOrSetDefault("gui.editButton.click", "&eGoing to edit page."))
+            switchScreen(GuiCommandListScreen(plugin, player))
+        }
         update()
     }
 

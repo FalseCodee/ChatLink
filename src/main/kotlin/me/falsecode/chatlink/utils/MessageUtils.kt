@@ -3,7 +3,6 @@ package me.falsecode.chatlink.utils
 import me.falsecode.chatlink.Main
 import me.falsecode.chatlink.managers.Manager
 import net.md_5.bungee.api.ChatColor
-import org.bukkit.plugin.java.JavaPlugin
 import java.util.regex.Pattern
 
 class MessageUtils(plugin: Main) : Manager(plugin, "messages") {
